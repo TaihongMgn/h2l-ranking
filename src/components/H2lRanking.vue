@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Rankings, RankingTier } from '../types'
-import { computed, nextTick, onMounted, ref } from 'vue'
-import { useResize } from '../hooks'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import H2lImageViewer from './H2lImageViewer.vue'
 import H2lTooltip from './H2lTooltip.vue'
 
@@ -44,14 +43,33 @@ function updateRowWidth() {
   }
 }
 
-// 使用 useResize hook 监听窗口变化，200ms 防抖
-useResize(updateRowWidth, 200)
+// 监听父元素尺寸变化
+let resizeObserver: ResizeObserver | null = null
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
 
-// 组件挂载后计算
+function debouncedUpdateRowWidth() {
+  if (debounceTimer)
+    clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(updateRowWidth, 200)
+}
+
 onMounted(() => {
   nextTick(() => {
     updateRowWidth()
+
+    // 获取父元素并监听其尺寸变化
+    const parent = rootRef.value?.parentElement
+    if (parent) {
+      resizeObserver = new ResizeObserver(debouncedUpdateRowWidth)
+      resizeObserver.observe(parent)
+    }
   })
+})
+
+onUnmounted(() => {
+  resizeObserver?.disconnect()
+  if (debounceTimer)
+    clearTimeout(debounceTimer)
 })
 
 function handleWheel(e: WheelEvent) {
