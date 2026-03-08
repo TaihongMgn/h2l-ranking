@@ -36,7 +36,7 @@ const imageStyle = computed(() => {
   return {
     transform: `translate(${dragState.value.translateX}px, ${dragState.value.translateY}px) scale(${scale.value})`,
     transformOrigin: 'center center',
-    transition: isDragging || touchState.value.active ? 'none' : 'transform 0.2s ease-out',
+    transition: isDragging || touchState.value.active ? 'none' : 'transform 0.2s ease-out'
   }
 })
 
@@ -113,7 +113,8 @@ function handleKeydown(e: KeyboardEvent) {
 watch(() => props.show, (newVal) => {
   if (newVal) {
     checkDescriptionOverflow()
-  } else {
+  }
+  else {
     scale.value = 1
     resetPosition()
     descriptionExpanded.value = false
@@ -172,7 +173,9 @@ onUnmounted(() => {
         <!-- 标题和描述信息 -->
         <div v-if="title || description" class="h2l-image-viewer__info">
           <div class="h2l-image-viewer__info-header">
-            <div v-if="title" class="h2l-image-viewer__title">{{ title }}</div>
+            <div v-if="title" class="h2l-image-viewer__title">
+              {{ title }}
+            </div>
             <button
               v-if="description && descriptionOverflowing"
               class="h2l-image-viewer__more"

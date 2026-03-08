@@ -1,18 +1,26 @@
 <script setup lang="ts">
-import type { Rankings } from '../types'
+import type { Rankings, RankingTier } from '../types'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useResize } from '../hooks'
 import H2lImageViewer from './H2lImageViewer.vue'
 import H2lTooltip from './H2lTooltip.vue'
 
+const props = withDefaults(defineProps<Props>(), {
+  enableImageViewer: true
+})
+
+const TIER_LABELS: Record<RankingTier, string> = {
+  hang: '夯',
+  upper: '顶级',
+  middle: '人上人',
+  lower: 'NPC',
+  la: '拉完了'
+}
+
 interface Props {
   rankings: Rankings
   enableImageViewer?: boolean
 }
-
-const props = withDefaults(defineProps<Props>(), {
-  enableImageViewer: true
-})
 
 const rootRef = ref<HTMLElement>()
 const labelsRef = ref<HTMLElement>()
@@ -64,113 +72,53 @@ function openViewer(cover: string, url?: string, title?: string, description?: s
   viewerDescription.value = description || ''
   viewerShow.value = true
 }
+
+// 暴露给父组件使用
+defineExpose({
+  openViewer
+})
 </script>
 
 <template>
   <div ref="rootRef" class="h2l-ranking">
     <H2lImageViewer v-model:show="viewerShow" :src="viewerSrc" :url="viewerUrl" :title="viewerTitle" :description="viewerDescription" />
+
     <div ref="labelsRef" class="h2l-ranking__labels">
-      <div class="h2l-ranking__label h2l-ranking__label--hang">
-        夯
-      </div>
-      <div class="h2l-ranking__label h2l-ranking__label--upper">
-        顶级
-      </div>
-      <div class="h2l-ranking__label h2l-ranking__label--middle">
-        人上人
-      </div>
-      <div class="h2l-ranking__label h2l-ranking__label--lower">
-        NPC
-      </div>
-      <div class="h2l-ranking__label h2l-ranking__label--la">
-        拉完了
-      </div>
+      <slot name="labels">
+        <div
+          v-for="(label, tier) in TIER_LABELS"
+          :key="tier"
+          :class="`h2l-ranking__label h2l-ranking__label--${tier}`"
+        >
+          {{ label }}
+        </div>
+      </slot>
     </div>
+
     <div class="h2l-ranking__content">
-      <div class="h2l-ranking__row" :style="rowStyle">
-        <div class="h2l-ranking__items" @wheel="handleWheel">
-          <H2lTooltip v-for="(item, index) in rankings.hang" :key="`hang-${index}`">
-            <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
-                <img :src="item.cover" :alt="item.title">
-              </div>
-            </template>
-            <template #content>
-              {{ item.title }}
-            </template>
-            <template v-if="item.description" #description>
-              {{ item.description }}
-            </template>
-          </H2lTooltip>
-        </div>
-      </div>
-      <div class="h2l-ranking__row" :style="rowStyle">
-        <div class="h2l-ranking__items" @wheel="handleWheel">
-          <H2lTooltip v-for="(item, index) in rankings.upper" :key="`upper-${index}`">
-            <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
-                <img :src="item.cover" :alt="item.title">
-              </div>
-            </template>
-            <template #content>
-              {{ item.title }}
-            </template>
-            <template v-if="item.description" #description>
-              {{ item.description }}
-            </template>
-          </H2lTooltip>
-        </div>
-      </div>
-      <div class="h2l-ranking__row" :style="rowStyle">
-        <div class="h2l-ranking__items" @wheel="handleWheel">
-          <H2lTooltip v-for="(item, index) in rankings.middle" :key="`middle-${index}`">
-            <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
-                <img :src="item.cover" :alt="item.title">
-              </div>
-            </template>
-            <template #content>
-              {{ item.title }}
-            </template>
-            <template v-if="item.description" #description>
-              {{ item.description }}
-            </template>
-          </H2lTooltip>
-        </div>
-      </div>
-      <div class="h2l-ranking__row" :style="rowStyle">
-        <div class="h2l-ranking__items" @wheel="handleWheel">
-          <H2lTooltip v-for="(item, index) in rankings.lower" :key="`lower-${index}`">
-            <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
-                <img :src="item.cover" :alt="item.title">
-              </div>
-            </template>
-            <template #content>
-              {{ item.title }}
-            </template>
-            <template v-if="item.description" #description>
-              {{ item.description }}
-            </template>
-          </H2lTooltip>
-        </div>
-      </div>
-      <div class="h2l-ranking__row" :style="rowStyle">
-        <div class="h2l-ranking__items" @wheel="handleWheel">
-          <H2lTooltip v-for="(item, index) in rankings.la" :key="`la-${index}`">
-            <template #default>
-              <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
-                <img :src="item.cover" :alt="item.title">
-              </div>
-            </template>
-            <template #content>
-              {{ item.title }}
-            </template>
-            <template v-if="item.description" #description>
-              {{ item.description }}
-            </template>
-          </H2lTooltip>
-        </div>
+      <div
+        v-for="tier in Object.keys(TIER_LABELS) as RankingTier[]"
+        :key="tier"
+        class="h2l-ranking__row"
+        :style="rowStyle"
+      >
+        <slot :name="tier">
+          <div class="h2l-ranking__items" @wheel="handleWheel">
+            <H2lTooltip v-for="(item, index) in rankings[tier]" :key="`${tier}-${index}`">
+              <template #default>
+                <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
+                  <img :src="item.cover" :alt="item.title">
+                </div>
+              </template>
+              <template #content>
+                {{ item.title }}
+              </template>
+              <template v-if="item.description" #description>
+                {{ item.description }}
+              </template>
+            </H2lTooltip>
+          </div>
+        </slot>
       </div>
     </div>
   </div>
@@ -259,7 +207,6 @@ function openViewer(cover: string, url?: string, title?: string, description?: s
   overflow-x: auto;
   overflow-y: hidden;
   min-width: 0;
-  /* 隐藏滚动条但保留滚动功能 */
   scrollbar-width: none;
   -ms-overflow-style: none;
 }

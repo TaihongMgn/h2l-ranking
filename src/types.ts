@@ -5,6 +5,8 @@ export interface RankingItem {
   description?: string
 }
 
+export type RankingTier = keyof Rankings
+
 export interface Rankings {
   hang: RankingItem[] // 夯 - 最强
   upper: RankingItem[] // 顶级
