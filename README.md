@@ -2,7 +2,7 @@
 
 一个简单易用的 Vue 3 从夯到拉排行组件
 
-![](https://github.com/imba97/h2l-ranking/blob/main/.github/screenshot/component.png?raw=true)
+![组件预览](https://github.com/imba97/h2l-ranking/blob/main/.github/screenshot/component.png?raw=true)
 
 ## 特性
 
@@ -81,7 +81,7 @@ const rankings = ref({
 | 属性 | 类型 | 必填 | 说明 |
 |------|------|:----:|------|
 | rankings | `Rankings` | 是 | 排行数据 |
-| enableImageViewer | `boolean` | 否 | `true` | 是否启用图片预览器 |
+| enableImageViewer | `boolean` | 否 | 是否启用图片预览器，默认 `true` |
 
 ### Rankings 类型
 
