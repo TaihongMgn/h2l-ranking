@@ -1,4 +1,4 @@
-import { onMounted, onUnmounted, ref } from 'vue'
+import { ref } from 'vue'
 
 export interface DragState {
   active: boolean
@@ -14,7 +14,7 @@ export function useImageDrag() {
     startX: 0,
     startY: 0,
     translateX: 0,
-    translateY: 0,
+    translateY: 0
   })
 
   // 开始拖拽
@@ -52,7 +52,7 @@ export function useImageDrag() {
     startDrag,
     onDragMove,
     endDrag,
-    resetPosition,
+    resetPosition
   }
 }
 
@@ -80,7 +80,7 @@ export function useTouchDrag(dragState: ReturnType<typeof useImageDrag>['dragSta
     startX: 0,
     startY: 0,
     startTranslateX: 0,
-    startTranslateY: 0,
+    startTranslateY: 0
   })
 
   // 触摸开始
@@ -100,7 +100,7 @@ export function useTouchDrag(dragState: ReturnType<typeof useImageDrag>['dragSta
       const touch2 = e.touches[1]
       const distance = Math.hypot(
         touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY,
+        touch2.clientY - touch1.clientY
       )
       const centerX = (touch1.clientX + touch2.clientX) / 2
       const centerY = (touch1.clientY + touch2.clientY) / 2
@@ -119,7 +119,7 @@ export function useTouchDrag(dragState: ReturnType<typeof useImageDrag>['dragSta
     e: TouchEvent,
     scale: { value: number },
     minScale: number,
-    maxScale: number,
+    maxScale: number
   ) {
     if (e.touches.length === 1 && touchState.value.isDragging) {
       // 单指拖拽
@@ -136,13 +136,13 @@ export function useTouchDrag(dragState: ReturnType<typeof useImageDrag>['dragSta
       const touch2 = e.touches[1]
       const distance = Math.hypot(
         touch2.clientX - touch1.clientX,
-        touch2.clientY - touch1.clientY,
+        touch2.clientY - touch1.clientY
       )
 
       const scaleRatio = distance / touchState.value.startDistance
       const newScale = Math.max(
         minScale,
-        Math.min(maxScale, touchState.value.startScale * scaleRatio),
+        Math.min(maxScale, touchState.value.startScale * scaleRatio)
       )
       scale.value = newScale
     }
@@ -158,6 +158,6 @@ export function useTouchDrag(dragState: ReturnType<typeof useImageDrag>['dragSta
     touchState,
     onTouchStart,
     onTouchMove,
-    onTouchEnd,
+    onTouchEnd
   }
 }
