@@ -1,24 +1,19 @@
 <script setup lang="ts">
-import type { Rankings, RankingTier } from '../types'
+import type { Rankings, TierConfig } from '../types'
+import { DEFAULT_TIERS } from '../types'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import H2lImageViewer from './H2lImageViewer.vue'
 import H2lTooltip from './H2lTooltip.vue'
 
 const props = withDefaults(defineProps<Props>(), {
-  enableImageViewer: true
+  enableImageViewer: true,
+  tiers: () => DEFAULT_TIERS
 })
-
-const TIER_LABELS: Record<RankingTier, string> = {
-  hang: '夯',
-  upper: '顶级',
-  middle: '人上人',
-  lower: 'NPC',
-  la: '拉完了'
-}
 
 interface Props {
   rankings: Rankings
   enableImageViewer?: boolean
+  tiers?: TierConfig[]
 }
 
 const rootRef = ref<HTMLElement>()
@@ -104,25 +99,26 @@ defineExpose({
     <div ref="labelsRef" class="h2l-ranking__labels">
       <slot name="labels">
         <div
-          v-for="(label, tier) in TIER_LABELS"
-          :key="tier"
-          :class="`h2l-ranking__label h2l-ranking__label--${tier}`"
+          v-for="tier in props.tiers"
+          :key="tier.id"
+          class="h2l-ranking__label"
+          :style="{ backgroundColor: tier.background, color: tier.color }"
         >
-          {{ label }}
+          {{ tier.label }}
         </div>
       </slot>
     </div>
 
     <div class="h2l-ranking__content">
       <div
-        v-for="tier in Object.keys(TIER_LABELS) as RankingTier[]"
-        :key="tier"
+        v-for="tier in props.tiers"
+        :key="tier.id"
         class="h2l-ranking__row"
         :style="rowStyle"
       >
-        <slot :name="tier">
+        <slot :name="tier.id">
           <div class="h2l-ranking__items" @wheel="handleWheel">
-            <H2lTooltip v-for="(item, index) in rankings[tier]" :key="`${tier}-${index}`">
+            <H2lTooltip v-for="(item, index) in props.rankings[tier.id] ?? []" :key="`${tier.id}-${index}`">
               <template #default>
                 <div class="h2l-ranking__item" @click="openViewer(item.cover, item.url, item.title, item.description)">
                   <img :src="item.cover" :alt="item.title">
@@ -172,31 +168,6 @@ defineExpose({
 
 .h2l-ranking__label:last-child {
   border-bottom: none;
-}
-
-.h2l-ranking__label--hang {
-  background-color: #ff0000;
-  color: #fff;
-}
-
-.h2l-ranking__label--upper {
-  background-color: #ff9500;
-  color: #fff;
-}
-
-.h2l-ranking__label--middle {
-  background-color: #ffcc00;
-  color: #000;
-}
-
-.h2l-ranking__label--lower {
-  background-color: #fef4d1;
-  color: #000;
-}
-
-.h2l-ranking__label--la {
-  background-color: #ffffff;
-  color: #000;
 }
 
 .h2l-ranking__content {
