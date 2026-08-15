@@ -69,10 +69,16 @@ onUnmounted(() => {
 
 function handleWheel(e: WheelEvent) {
   const target = e.currentTarget as HTMLElement
-  if (e.deltaY !== 0) {
-    e.preventDefault()
-    target.scrollLeft += e.deltaY * 0.5
-  }
+  if (e.deltaY === 0)
+    return
+  if (target.scrollWidth <= target.clientWidth)
+    return
+  if (e.deltaY > 0 && target.scrollLeft + target.clientWidth >= target.scrollWidth - 1)
+    return
+  if (e.deltaY < 0 && target.scrollLeft <= 1)
+    return
+  e.preventDefault()
+  target.scrollLeft += e.deltaY * 0.5
 }
 
 // 打开图片查看器
